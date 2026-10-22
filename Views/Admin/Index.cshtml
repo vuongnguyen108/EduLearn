@@ -1,0 +1,192 @@
+﻿
+@model Nhom8.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div class="stat-label">Tổng học viên</div>
+                <span class="stat-icon"><i class="bi bi-people"></i></span>
+            </div>
+            <div class="stat-value">
+                @Model.TotalStudents.ToString("N0")
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div class="stat-label">Tổng doanh thu</div>
+                <span class="stat-icon"><i class="bi bi-currency-dollar"></i></span>
+            </div>
+            <div class="stat-value fs-4">
+                @Model.TotalRevenue.ToString("C0")
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div class="stat-label">Tổng khóa học</div>
+                <span class="stat-icon"><i class="bi bi-journal-bookmark"></i></span>
+            </div>
+            <div class="stat-value">
+                @Model.TotalCourses.ToString("N0")
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div class="stat-label">Đơn chờ thanh toán</div>
+                <span class="stat-icon"><i class="bi bi-hourglass-split"></i></span>
+            </div>
+            <div class="stat-value">
+                @Model.PendingOrders.ToString("N0")
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h5 mb-1">Doanh thu 6 tháng gần nhất</h2>
+            <p class="text-secondary small mb-0">
+                Tổng giá trị các đơn đã thanh toán theo ngày thanh toán
+            </p>
+        </div>
+    </div>
+
+    <div style="height: 320px;">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0">Khóa học mới nhất</h2>
+        <span class="text-secondary small">5 khóa học gần đây</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>Khóa học</th>
+                    <th>Giá hiện tại</th>
+                    <th>Học viên</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentCourses.Count == 0)
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-secondary py-4">
+                            Chưa có khóa học.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var course in Model.RecentCourses)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@course.CourseTitle</td>
+                            <td>@course.Price.ToString("C0") $</td>
+                            <td>@course.StudentCount</td>
+                            <td>
+                                @if (course.CourseStatus == "Published")
+                                {
+                                    <span class="badge text-bg-success">Đã xuất bản</span>
+                                }
+                                else if (course.CourseStatus == "Pending")
+                                {
+                                    <span class="badge text-bg-warning">Chờ duyệt</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-secondary">
+                                        @course.CourseStatus
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const revenueLabels = @Html.Raw(
+            System.Text.Json.JsonSerializer.Serialize(
+                Model.RevenueData.Select(x => x.Label)));
+
+        const revenueValues = @Html.Raw(
+            System.Text.Json.JsonSerializer.Serialize(
+                Model.RevenueData.Select(x => x.Revenue)));
+
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: 'Doanh thu ($)',
+                    data: revenueValues,
+                    borderColor: '#4263eb',
+                    backgroundColor: 'rgba(66, 99, 235, 0.12)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD',
+                                    maximumFractionDigits: 0
+                                }).format(value);
+                            }
+                        }
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Revenue: ' +
+                            new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD',
+                                maximumFractionDigits: 0
+                            }).format(context.parsed.y);
+                    }
+                }
+            }
+        });
+    </script>
+}

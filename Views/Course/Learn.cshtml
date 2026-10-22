@@ -1,0 +1,323 @@
+﻿@model Nhom8.Models.LearningPageViewModel
+
+@{
+    ViewData["Title"] = "Learning - " + Model.Course.CourseTitle;
+
+    var allLessons = Model.Sections
+        .SelectMany(s => s.Lessons.OrderBy(l => l.OrderIndex))
+        .ToList();
+
+    var currentIndex = Model.CurrentLesson == null
+        ? -1
+        : allLessons.FindIndex(l =>
+            l.LessonId == Model.CurrentLesson.LessonId);
+
+    var previousLesson = currentIndex > 0
+        ? allLessons[currentIndex - 1]
+        : null;
+
+    var nextLesson = currentIndex >= 0 &&
+                     currentIndex < allLessons.Count - 1
+        ? allLessons[currentIndex + 1]
+        : null;
+}
+
+<div class="learning-page"
+     data-course-id="@Model.Course.CourseId"
+     data-lesson-id="@(Model.CurrentLesson?.LessonId ?? 0)"
+     data-total-lessons="@allLessons.Count">
+
+    <!-- Header -->
+    <header class="learning-header">
+        <a asp-controller="Course"
+           asp-action="Details"
+           asp-route-id="@Model.Course.CourseId"
+           class="learning-back">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+
+        <div class="learning-header-info">
+            <div class="learning-course-title">
+                @Model.Course.CourseTitle
+            </div>
+
+            @* <div class="learning-progress-row">
+                <div class="progress learning-progress">
+                    <div id="learningProgressBar"
+                         class="progress-bar"
+                         role="progressbar"
+                         style="width: 0%">
+                    </div>
+                </div>
+
+                <span id="learningProgressText">0% complete</span>
+            </div> *@
+        </div>
+    </header>
+
+    <div class="learning-layout">
+
+        <!-- Main lesson -->
+        <main class="learning-main">
+
+            @if (Model.CurrentLesson != null)
+            {
+                <div class="lesson-heading">
+                    <div>
+                        <span class="text-muted small">
+                            @Model.Course.CourseTitle
+                        </span>
+
+                        <h1 class="h3 fw-bold mt-1 mb-0">
+                            @Model.CurrentLesson.LessonTitle
+                        </h1>
+                    </div>
+
+                    @if (Model.CurrentLesson.DurationSeconds.HasValue)
+                    {
+                        var duration = Model.CurrentLesson.DurationSeconds.Value;
+
+                        <span class="lesson-duration">
+                            <i class="bi bi-clock me-1"></i>
+                            @(duration / 60) min
+                        </span>
+                    }
+                </div>
+
+                <!-- Video player -->
+                <section class="lesson-player">
+                    @if (!string.IsNullOrWhiteSpace(Model.CurrentLesson.VideoUrl))
+                    {
+                        <video id="lessonVideo"
+                               class="lesson-video"
+                               controls
+                               preload="metadata">
+                            <source src="@Model.CurrentLesson.VideoUrl" />
+                            Your browser does not support video playback.
+                        </video>
+                    }
+                    else
+                    {
+                        <div class="video-empty">
+                            <i class="bi bi-play-circle"></i>
+                            <h5 class="mt-3">Video not available</h5>
+                            <p class="mb-0">
+                                This lesson does not have a video URL yet.
+                            </p>
+                        </div>
+                    }
+                </section>
+
+                <!-- Lesson navigation -->
+                <div class="lesson-actions">
+                    @if (previousLesson != null)
+                    {
+                        <a class="btn btn-outline-secondary"
+                           asp-controller="Course"
+                           asp-action="Learn"
+                           asp-route-id="@Model.Course.CourseId"
+                           asp-route-lessonId="@previousLesson.LessonId">
+                            <i class="bi bi-chevron-left"></i>
+                            Previous Lesson
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-secondary"
+                                type="button" disabled>
+                            <i class="bi bi-chevron-left"></i>
+                            Previous Lesson
+                        </button>
+                    }
+
+                    <button type="button"
+                            id="markCompleteButton"
+                            class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Mark as Complete
+                    </button>
+
+                    @if (nextLesson != null)
+                    {
+                        <a class="btn btn-primary"
+                           asp-controller="Course"
+                           asp-action="Learn"
+                           asp-route-id="@Model.Course.CourseId"
+                           asp-route-lessonId="@nextLesson.LessonId">
+                            Next Lesson
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary"
+                                type="button" disabled>
+                            Next Lesson
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    }
+                </div>
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs learning-tabs"
+                    id="lessonTabs"
+                    role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active"
+                                id="overview-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#overview"
+                                type="button"
+                                role="tab">
+                            Overview
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"
+                                id="resources-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#resources"
+                                type="button"
+                                role="tab">
+                            Resources
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"
+                                id="qa-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#qa"
+                                type="button"
+                                role="tab">
+                            Q&A
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content learning-tab-content">
+
+                    <section class="tab-pane fade show active"
+                             id="overview"
+                             role="tabpanel">
+
+                        <h4 class="fw-bold mb-3">About this lesson</h4>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.CurrentLesson.Content))
+                        {
+                            <div class="lesson-content">
+                                @Model.CurrentLesson.Content
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">
+                                No lesson description is available yet.
+                            </p>
+                        }
+
+                        <div class="mt-4">
+                            <h5 class="fw-semibold">About this course</h5>
+                            <p class="text-muted">
+                                @Model.Course.Description
+                            </p>
+                        </div>
+                    </section>
+
+                    <section class="tab-pane fade"
+                             id="resources"
+                             role="tabpanel">
+                        <h4 class="fw-bold mb-3">Learning resources</h4>
+                        <p class="text-muted">
+                            No downloadable resources are available for this lesson yet.
+                        </p>
+                    </section>
+
+                    <section class="tab-pane fade"
+                             id="qa"
+                             role="tabpanel">
+                        <h4 class="fw-bold mb-3">Questions & Answers</h4>
+                        <p class="text-muted">
+                            The Q&A feature has not been connected to a data source yet.
+                        </p>
+                    </section>
+
+                </div>
+            }
+            else
+            {
+                <div class="learning-empty">
+                    <i class="bi bi-journal-x"></i>
+                    <h3>No lessons available</h3>
+                    <p>This course does not have any lessons yet.</p>
+
+                    <a asp-controller="Course"
+                       asp-action="Details"
+                       asp-route-id="@Model.Course.CourseId"
+                       class="btn btn-primary">
+                        Back to course details
+                    </a>
+                </div>
+            }
+        </main>
+
+        <!-- Course content sidebar -->
+        <aside class="learning-sidebar">
+            <div class="sidebar-heading">
+                <div>
+                    <h2>Course Content</h2>
+                    <p class="text-muted small mb-0">
+                        @Model.Sections.Count chapters · @allLessons.Count lessons
+                    </p>
+                </div>
+            </div>
+
+            <div class="course-content-list">
+                @foreach (var courseSection in Model.Sections)
+                {
+                    <div class="learning-section">
+                        <div class="learning-section-title">
+                            @courseSection.SectionTitle
+                        </div>
+
+                        @foreach (var lesson in courseSection.Lessons
+                            .OrderBy(l => l.OrderIndex))
+                        {
+                            var isCurrent = Model.CurrentLesson?.LessonId == lesson.LessonId;
+
+                            <a class="learning-lesson @(isCurrent ? "active" : "")"
+                               asp-controller="Course"
+                               asp-action="Learn"
+                               asp-route-id="@Model.Course.CourseId"
+                               asp-route-lessonId="@lesson.LessonId"
+                               data-lesson-id="@lesson.LessonId">
+
+                                <i class="bi @(isCurrent ? "bi-play-circle-fill" : "bi-play-circle") lesson-icon"></i>
+
+                                <span class="learning-lesson-name">
+                                    @lesson.LessonTitle
+                                </span>
+
+                                <i class="bi bi-check-circle-fill lesson-completed-icon"></i>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </aside>
+
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/learning.css"
+          asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/learning.js"
+            asp-append-version="true"></script>
+}

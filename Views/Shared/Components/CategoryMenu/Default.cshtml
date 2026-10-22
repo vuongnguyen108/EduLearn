@@ -1,0 +1,117 @@
+﻿@model IEnumerable<Nhom8.Models.Category>
+<select 
+    class="form-select header-category-select" 
+    name="categoryId" 
+    aria-label="Browse by category"
+    onchange="uploadCourses(this.value)"
+>
+    <option value="">All categories</option>
+    @foreach (var item in Model)
+    {
+        <option value="@item.CategoryId">@item.CategoryName</option>
+    }
+</select>
+
+<script>
+    function formatPrice(price) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 0
+        }).format(price ?? 0);
+    }
+    function uploadCourses(categoryId){
+
+        console.log('click ' + categoryId);
+        console.log(typeof(categoryId));
+        $.ajax({
+            url: '/api/courseapi/' + encodeURIComponent(categoryId),
+            type: 'GET',
+            success: function(data){
+                console.log('/api/courseapi/' + encodeURIComponent(categoryId));
+                if (!data || data.length === 0) {
+                    var categoryName = document.querySelector(
+                        '.header-category-select'
+                    ).selectedOptions[0].text;
+                    $("#PopularCourse").html(`
+                        <div class="col-12 text-center py-5">
+                            <i class="bi bi-search fs-1 text-secondary"></i>
+                                <h5 class="mt-3">No courses found</h5>
+                            <p class="text-muted">
+                                There are currently no courses in ${categoryName} category. <br />
+                                Please select a different category
+                            </p>
+                        </div>
+                    `);
+                    return;
+                }
+                var courseCard = '';
+                data.forEach(function(item){
+                    var priceHtml = '';
+                    if (item.discountPrice != null) 
+                    {
+                        priceHtml = `
+                            <span class="fw-bold text-dark">
+                                    ${formatPrice(item.discountPrice)}
+                            </span>
+                            <span class="text-muted text-decoration-line-through small ms-1">
+                                    ${formatPrice(item.price)}
+                            </span>
+                        `;
+                    } 
+                    else 
+                    {
+                        priceHtml = `
+                            <span class="fw-bold text-dark">
+                                    ${formatPrice(item.price)}
+                            </span>
+                        `;
+                    }
+
+                    courseCard += `
+                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <div class="card course-card h-100 border-0 shadow-sm">
+                                <a href="#" class="text-decoration-none text-reset">
+                                    <img src="${item.thumbnailUrl}"
+                                         class="card-img-top course-card-thumb"
+                                         alt="${item.courseTitle}"
+                                         loading="lazy" />
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <span class="badge text-secondary align-self-start mb-2"
+                                          style="background-color: #dadada;">
+                                        ${item.level}
+                                    </span>
+
+                                    <h3 class="course-card-title fw-semibold">
+                                        ${item.courseTitle}
+                                    </h3>
+
+                                    <p class="course-card-description text-muted small mb-3">
+                                        ${item.description ?? ''}
+                                    </p>
+
+                                    <div class="mt-auto pt-2">
+                                        ${priceHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                $('#PopularCourse').html(courseCard);
+                });
+            },
+            error: function(xhr, status, error){
+                console.error("Lỗi AJAX:", error);
+                $("#PopularCourse").html(`
+                    <div class="col-12 text-center py-4">
+                        <p class="text-danger">
+                            Đã xảy ra lỗi khi tải khóa học. Vui lòng thử lại.
+                        </p>
+                    </div>
+                `);
+            }
+        });
+    }
+</script>
+

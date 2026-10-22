@@ -1,0 +1,50 @@
+﻿
+@model Nhom8.Models.Course
+
+@{
+    ViewData["Title"] = "Xóa khóa học";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="panel">
+    <h3 class="text-danger mb-3">Xác nhận xóa khóa học</h3>
+
+    <p>
+        Bạn có chắc chắn muốn xóa khóa học
+        <strong>@Model.CourseTitle</strong> không?
+    </p>
+
+    <p>
+        Danh mục:
+        <strong>@Model.Category?.CategoryName</strong>
+    </p>
+
+    @if ((bool)ViewBag.HasEnrollments ||
+         (bool)ViewBag.HasOrderDetails)
+    {
+        <div class="alert alert-warning">
+            Khóa học đã có học viên đăng ký hoặc có trong đơn hàng.
+            Bạn không nên xóa khóa học này.
+        </div>
+    }
+
+    <form asp-controller="Admin"
+          asp-action="DeleteCourseConfirmed"
+          asp-route-id="@Model.CourseId"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <button type="submit"
+                class="btn btn-danger"
+                onclick="return confirm('Bạn chắc chắn muốn xóa khóa học này?');">
+            <i class="bi bi-trash"></i> Xác nhận xóa
+        </button>
+
+        <a asp-controller="Admin"
+           asp-action="Courses"
+           class="btn btn-outline-secondary">
+            Hủy
+        </a>
+    </form>
+</div>

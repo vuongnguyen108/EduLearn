@@ -1,0 +1,83 @@
+﻿
+@model IEnumerable<Nhom8.Models.Course>
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Checkout</h2>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Your Courses</h5>
+
+                    @foreach (var course in Model)
+                    {
+                        <div class="d-flex justify-content-between
+                                    align-items-start border-bottom py-3 gap-3">
+                            <div>
+                                <h6 class="mb-1">@course.CourseTitle</h6>
+                                <span class="text-muted small">
+                                    @(course.DiscountPrice.HasValue
+                                        ? "Discount price"
+                                        : "Regular price")
+                                </span>
+                            </div>
+
+                            <strong class="text-nowrap">
+                                @((course.DiscountPrice ?? course.Price)
+                                    .ToString("C0"))
+                            </strong>
+                        </div>
+                    }
+
+                    <div class="alert alert-info mt-4 mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This is a simulated payment. No real money will be charged.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Order Summary</h5>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Number of courses</span>
+                        <strong>@Model.Count()</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between border-top pt-3 mb-4">
+                        <span>Total</span>
+                        <strong class="fs-5 text-primary">
+                            @(((decimal)ViewBag.Total).ToString("C0"))
+                        </strong>
+                    </div>
+
+                    <form asp-controller="Cart"
+                          asp-action="ConfirmCheckout"
+                          method="post">
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Confirm Purchase
+                        </button>
+                    </form>
+
+                    <a asp-controller="Cart"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary w-100 mt-2">
+                        Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

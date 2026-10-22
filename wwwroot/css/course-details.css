@@ -1,0 +1,80 @@
+.course-detail-hero {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+}
+
+.detail-section {
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.learning-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem 0;
+}
+
+    .learning-item i {
+        margin-top: 0.2rem;
+    }
+
+.course-purchase-card {
+    position: sticky;
+    top: 100px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 12px;
+}
+
+.course-purchase-card .btn {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+}
+
+#curriculum .accordion-button {
+    gap: 0.75rem;
+}
+
+#curriculum .accordion-button::after {
+    margin-left: auto;
+}
+
+/* Căn chỉnh nội dung các nút Course Curriculum */
+#curriculum .accordion-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Tiêu đề chương có cùng cách căn lề */
+#curriculum .accordion-button .fw-semibold {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+/* Số lượng bài học có cùng vị trí */
+#curriculum .accordion-button .text-muted {
+    flex: 0 0 110px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+/* Giữ icon mũi tên ở cùng vị trí */
+#curriculum .accordion-button::after {
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+@media (max-width: 991.98px) {
+    .course-purchase-card {
+        position: static;
+    }
+
+    .course-detail-hero {
+        padding: 2rem 0;
+    }
+}
+

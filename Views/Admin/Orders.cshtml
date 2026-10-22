@@ -1,0 +1,137 @@
+﻿
+@model IEnumerable<Nhom8.Models.Order>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý đơn hàng";
+
+    var currency = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+}
+
+<div class="panel">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="h5 mb-1">Danh sách đơn hàng</h2>
+            <div class="text-secondary small">
+                Tổng cộng @Model.Count() đơn hàng
+            </div>
+        </div>
+    </div>
+
+    <form asp-controller="Admin" asp-action="Orders"
+          method="get" class="row g-2 mb-4">
+
+        <div class="col-12 col-md-6">
+            <input type="text"
+                   name="searchTerm"
+                   value="@ViewBag.SearchTerm"
+                   class="form-control"
+                   placeholder="Tìm theo mã đơn, tên hoặc email người mua..." />
+        </div>
+
+        <div class="col-12 col-md-4">
+            <select name="status" class="form-select">
+                <option value="">Tất cả trạng thái</option>
+
+                @foreach (string item in ViewBag.Statuses)
+                {
+                    if ((string?)ViewBag.SelectedStatus == item)
+                    {
+                        <option value="@item" selected>@item</option>
+                    }
+                    else
+                    {
+                        <option value="@item">@item</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">
+                <i class="bi bi-search"></i> Tìm
+            </button>
+
+            <a asp-controller="Admin" asp-action="Orders"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Người mua</th>
+                    <th>Ngày tạo</th>
+                    <th>Số khóa học</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Phương thức</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-secondary py-4">
+                            Không tìm thấy đơn hàng phù hợp.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">#@order.OrderId</td>
+
+                            <td>
+                                <div class="fw-semibold">
+                                    @order.Student.FullName
+                                </div>
+                                <small class="text-secondary">
+                                    @order.Student.Email
+                                </small>
+                            </td>
+
+                            <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+
+                            <td>@order.OrderDetails.Count</td>
+
+                            <td class="fw-semibold">
+                                @order.TotalAmount.ToString("C0", currency)
+                            </td>
+
+                            <td>
+                                @if (order.PaymentStatus == "Paid")
+                                {
+                                    <span class="badge text-bg-success">
+                                        @order.PaymentStatus
+                                    </span>
+                                }
+                                else if (order.PaymentStatus == "Pending")
+                                {
+                                    <span class="badge text-bg-warning">
+                                        @order.PaymentStatus
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-secondary">
+                                        @order.PaymentStatus
+                                    </span>
+                                }
+                            </td>
+
+                            <td>@(order.PaymentMethod ?? "—")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

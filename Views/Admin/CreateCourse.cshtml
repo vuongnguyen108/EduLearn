@@ -1,0 +1,142 @@
+﻿
+@model Nhom8.ViewModels.AdminCreateCourseViewModel
+
+@{
+    ViewData["Title"] = "Thêm khóa học";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="panel">
+    <div class="mb-4">
+        <h2 class="h5 mb-1">Thông tin khóa học</h2>
+        <p class="text-secondary small mb-0">
+            Nhập thông tin để tạo khóa học mới trên EduLearn.
+        </p>
+    </div>
+
+    <form asp-controller="Admin" asp-action="CreateCourse"
+          method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger"></div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="CourseTitle" class="form-label">
+                    Tên khóa học *
+                </label>
+                <input asp-for="CourseTitle"
+                       class="form-control"
+                       placeholder="Ví dụ: Lập trình Web với ASP.NET Core" />
+                <span asp-validation-for="CourseTitle"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label">
+                    Mô tả khóa học
+                </label>
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Giới thiệu nội dung khóa học..."></textarea>
+                <span asp-validation-for="Description"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="CategoryId" class="form-label">
+                    Danh mục *
+                </label>
+                <select asp-for="CategoryId"
+                        asp-items="ViewBag.Categories"
+                        class="form-select">
+                    <option value="">-- Chọn danh mục --</option>
+                </select>
+                <span asp-validation-for="CategoryId"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Level" class="form-label">
+                    Cấp độ *
+                </label>
+                <select asp-for="Level" class="form-select">
+                    <option value="">-- Chọn cấp độ --</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+                <span asp-validation-for="Level"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Price" class="form-label">
+                    Giá gốc (USD) *
+                </label>
+                <input asp-for="Price"
+                       type="number"
+                       min="0"
+                       step="0.01"
+                       class="form-control" />
+                <span asp-validation-for="Price"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="DiscountPrice" class="form-label">
+                    Giá ưu đãi (USD)
+                </label>
+                <input asp-for="DiscountPrice"
+                       type="number"
+                       min="0"
+                       step="0.01"
+                       class="form-control"
+                       placeholder="Để trống nếu không giảm giá" />
+                <span asp-validation-for="DiscountPrice"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Language" class="form-label">
+                    Ngôn ngữ
+                </label>
+                <input asp-for="Language"
+                       class="form-control"
+                       placeholder="Ví dụ: Vietnamese, English" />
+                <span asp-validation-for="Language"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ThumbnailUrl" class="form-label">
+                    Đường dẫn ảnh đại diện
+                </label>
+                <input asp-for="ThumbnailUrl"
+                       class="form-control"
+                       placeholder="/images/courses/course-1.jpg" />
+                <span asp-validation-for="ThumbnailUrl"
+                      class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i>
+                Lưu khóa học
+            </button>
+
+            <a asp-controller="Admin"
+               asp-action="Courses"
+               class="btn btn-outline-secondary">
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,192 @@
+:root {
+    --brand-primary: #6C5CE7;
+    --brand-primary-dark: #4b3fc9;
+}
+
+html {
+    min-height: 100%;
+    overflow-y: auto;
+}
+
+body {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: clip;
+}
+
+
+/* ---------- Header ---------- */
+.navbar-brand span {
+    letter-spacing: .5px;
+}
+
+.header-search {
+    max-width: 640px;
+}
+
+.header-category-select {
+    max-width: 180px;
+    flex: 0 0 auto;
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.header-search-input {
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+}
+
+
+.header-search .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+@media (max-width: 991.98px) {
+    .header-category-select {
+        max-width: none;
+    }
+}
+
+/* ---------- Hero banner ---------- */
+.hero-banner {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
+}
+
+/* ---------- Course card ---------- */
+.course-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Keep all course thumbnails at the same size */
+.course-card-thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.course-card:hover .course-card-thumb {
+    transform: scale(1.1);
+}
+/* Card content */
+.course-card .card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Course title: reserve space for 2 lines */
+.course-card-title {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    height: 3em;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+/* Course description: reserve space for 3 lines */
+.course-card-description {
+    line-height: 1.5;
+    height: 4.5em;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+}
+
+/* ---------- Footer ---------- */
+.footer-link {
+    color: #adb5bd;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    color: #fff;
+}
+
+/* ---------- Course List responsive ---------- */
+.course-list-page {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+}
+
+    .course-list-page > .row {
+        align-items: flex-start;
+    }
+
+    .course-list-page aside,
+    .course-list-page main {
+        min-width: 0;
+    }
+
+#courseResults {
+    min-width: 0;
+    align-content: start;
+}
+
+    #courseResults > [class*="col-"] {
+        min-width: 0;
+    }
+
+/* ---------- Responsive ---------- */
+/* Tablet */
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .course-list-page {
+        padding-top: 1.5rem;
+        padding-bottom: 2rem;
+    }
+
+    .filter-sidebar {
+        margin-bottom: 0.5rem;
+    }
+}
+/* Mobile */
+@media (max-width: 576px) {
+    .course-card-title {
+        font-size: 1rem;
+    }
+
+    .hero-banner .display-5 {
+        font-size: 2rem;
+    }
+
+    .hero-banner .lead {
+        font-size: 1rem;
+    }
+
+    .course-list-page {
+        padding-top: 1rem;
+        padding-bottom: 1.5rem;
+    }
+
+    #pagination {
+        gap: 0.25rem;
+    }
+}
+
+

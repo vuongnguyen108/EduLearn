@@ -1,0 +1,100 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+@model IEnumerable<Nhom8.Models.Course>
+
+<!-- Hero banner -->
+<section class="hero-banner text-white">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-12 col-lg-7">
+                <h1 class="fw-bold display-5">Learn without limits</h1>
+                <p class="lead mb-4">
+                    Start, switch, or advance your career with thousands of courses
+                    from expert instructors.
+                </p>
+
+                <a class="btn btn-light btn-lg text-primary fw-semibold"
+                   asp-controller="Course"
+                   asp-action="Index"
+                >
+                    Explore courses
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular courses -->
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Popular courses</h2>
+
+        <a class="link-primary text-decoration-none fw-semibold"
+           asp-controller="Course"
+           asp-action="Index"
+        >
+            View all <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="row g-4" id="PopularCourse">
+        @foreach (var item in Model)
+        {
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="card course-card h-100 border-0 shadow-sm">
+
+                    <a 
+                        asp-controller="Course"
+                        asp-action="Details"
+                        asp-route-id="@item.CourseId"
+                        class="text-decoration-none text-reset">
+                        <img src="@item.ThumbnailUrl"
+                             class="card-img-top course-card-thumb"
+                             alt="@item.CourseTitle"
+                             loading="lazy" />
+                    </a>
+
+                    <div class="card-body d-flex flex-column">
+
+                        <span class="badge text-secondary align-self-start mb-2"
+                              style="background-color: #dadada;">
+                            @item.Level
+                        </span>
+
+                        <h3 class="course-card-title fw-semibold">
+                            @item.CourseTitle
+                        </h3>
+
+                        <p class="course-card-description text-muted small mb-3">
+                            @item.Description
+                        </p>
+
+                        <div class="mt-auto pt-2">
+                            @if (item.DiscountPrice != null)
+                            {
+                                <span class="fw-bold text-dark">
+                                    @item.DiscountPrice.Value.ToString("C0")
+                                </span>
+
+                                <span class="text-muted text-decoration-line-through small ms-1">
+                                    @item.Price.ToString("C0")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="fw-bold text-dark">
+                                    @item.Price.ToString("C0")
+                                </span>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+

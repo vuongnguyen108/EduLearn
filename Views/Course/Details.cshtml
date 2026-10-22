@@ -1,0 +1,289 @@
+﻿@model Nhom8.Models.Course
+
+@{
+    ViewData["Title"] = Model.CourseTitle;
+}
+
+<!-- Course heading -->
+<section class="course-detail-hero py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="text-white-50 text-decoration-none">
+                    Home
+                </a>
+                <span class="text-white-50 mx-2">/</span>
+                <span class="text-white-50">@Model.Category.CategoryName</span>
+
+                <h1 class="fw-bold text-white mt-3 mb-3">
+                    @Model.CourseTitle
+                </h1>
+
+                <p class="text-white mb-3">
+                    @Model.Description
+                </p>
+
+                <div class="text-white mb-2">
+                    <span class="me-3">
+                        <i class="bi bi-person-circle me-1"></i>
+                        @Model.User.FullName
+                    </span>
+
+                    <span class="badge bg-light text-dark">
+                        @Model.Level
+                    </span>
+                </div>
+
+                <small class="text-white-50">
+                    @Model.Enrollments.Count students
+                    · @Model.Reviews.Count reviews
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-4">
+
+        <!-- Main content -->
+        <main class="col-lg-8">
+            <!-- Overview -->
+            <section id="overview" class="detail-section mb-4">
+                <h3 class="fw-bold mb-3">What you'll learn</h3>
+
+                <p class="text-muted">
+                    @Model.Description
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="learning-item">
+                            <i class="bi bi-check-circle-fill text-primary"></i>
+                            <span>Learn at your own pace</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="learning-item">
+                            <i class="bi bi-check-circle-fill text-primary"></i>
+                            <span>Study with structured lessons</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="learning-item">
+                            <i class="bi bi-check-circle-fill text-primary"></i>
+                            <span>Course level: @Model.Level</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="learning-item">
+                            <i class="bi bi-check-circle-fill text-primary"></i>
+                            <span>Language: @(Model.Language ?? "Not specified")</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Curriculum -->
+            <section id="curriculum" class="detail-section mb-4">
+                <h3 class="fw-bold mb-3">Course curriculum</h3>
+
+                @if (Model.Sections.Any())
+                {
+                    <div class="accordion" id="curriculumAccordion">
+                        @{
+                            var sections = Model.Sections
+                                .OrderBy(s => s.OrderIndex)
+                                .ToList();
+                        }
+
+                        @for (int i = 0; i < sections.Count; i++)
+                        {
+                            var courseSection = sections[i];
+                            var headingId = $"heading{i}";
+                            var collapseId = $"collapse{i}";
+
+                            <div class="accordion-item">
+                                <h2 class="accordion-header"
+                                    id="@headingId">
+
+                                    <button class="accordion-button collapsed"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#@collapseId"
+                                            aria-expanded="false"
+                                            aria-controls="@collapseId">
+
+                                        <span class="fw-semibold">
+                                            Section @(i + 1): @courseSection.SectionTitle
+                                        </span>
+
+                                        <span class="ms-auto me-3 small text-muted">
+                                            @courseSection.Lessons.Count lessons
+                                        </span>
+                                    </button>
+                                </h2>
+
+                                <div id="@collapseId"
+                                     class="accordion-collapse collapse"
+                                     aria-labelledby="@headingId"
+                                     data-bs-parent="#curriculumAccordion">
+
+                                    <div class="accordion-body">
+                                        @if (courseSection.Lessons.Any())
+                                        {
+                                            <ul class="list-unstyled mb-0">
+                                                @foreach (var lesson in courseSection.Lessons
+                                                    .OrderBy(l => l.OrderIndex))
+                                                {
+                                                    <li class="py-2 border-bottom">
+                                                        <i class="bi bi-play-circle me-2 text-primary"></i>
+                                                        @lesson.LessonTitle
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted mb-0">
+                                                No lessons available yet.
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">
+                        Course curriculum has not been added yet.
+                    </p>
+                }
+            </section>
+
+            <!-- Reviews -->
+            <section id="reviews" class="detail-section mb-4">
+                <h3 class="fw-bold mb-3">Reviews & Q&A</h3>
+
+                <p class="text-muted">
+                    There are @Model.Reviews.Count reviews for this course.
+                </p>
+
+                <p class="text-muted">
+                    Review details can be displayed here.
+                </p>
+            </section>
+        </main>
+
+        <!-- Purchase card -->
+        <aside class="col-lg-4">
+            <div class="card course-purchase-card shadow-sm">
+                <img src="@(Model.ThumbnailUrl ?? "")"
+                     class="card-img-top"
+                     alt="@Model.CourseTitle"
+                     onerror="this.style.display='none'"
+                     style="aspect-ratio:16/9; object-fit:cover;" />
+
+                <div class="card-body p-4">
+                    @if (Model.DiscountPrice.HasValue)
+                    {
+                        <h2 class="fw-bold mb-1">
+                            @Model.DiscountPrice.Value.ToString("C0")
+                        </h2>
+
+                        <p class="text-muted text-decoration-line-through">
+                            @Model.Price.ToString("C0")
+                        </p>
+
+                        @if (Model.Price > 0)
+                        {
+                            <span class="badge bg-danger mb-3">
+                                Save @((100 * (Model.Price - Model.DiscountPrice.Value)
+                                    / Model.Price).ToString("0"))%
+                            </span>
+                        }
+                    }
+                    else
+                    {
+                        <h2 class="fw-bold mb-3">
+                            @Model.Price.ToString("C0")
+                        </h2>
+                    }
+
+                    <form 
+                        asp-controller="Cart"
+                        asp-action="Add"
+                        method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.CourseId" />
+
+                        <button type="submit"
+                                class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-cart-plus me-2"></i>
+                            Add to Cart
+                        </button>
+                    </form>
+
+                    <form asp-controller="Cart"
+                          asp-action="BuyNow"
+                          method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.CourseId" />
+
+                        <button type="submit"
+                                class="btn btn-outline-primary w-100">
+                            Buy Now
+                        </button>
+                    </form>
+
+                    <a asp-controller="Course"
+                       asp-action="Learn"
+                       asp-route-id="@Model.CourseId"
+                       class="btn btn-success w-100 mt-2">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Start Learning
+                    </a>
+
+                    <p class="text-center text-muted small mt-3">
+                        This course includes:
+                    </p>
+
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="bi bi-play-circle me-2"></i>
+                            @Model.Sections.Sum(s => s.Lessons.Count) lessons
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-infinity me-2"></i>
+                            Learn at your own pace
+                        </li>
+                        <li>
+                            <i class="bi bi-phone me-2"></i>
+                            Online learning
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/course-details.css"
+          asp-append-version="true" />
+}

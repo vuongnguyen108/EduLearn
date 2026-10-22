@@ -1,0 +1,116 @@
+﻿@model IEnumerable<Nhom8.Models.Course>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Shopping Cart</h2>
+
+        <a asp-controller="Course"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>
+            Continue Shopping
+        </a>
+    </div>
+
+    @if (TempData["CartMessage"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["CartMessage"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light border">
+            Your cart is empty.
+            <a asp-controller="Course" asp-action="Index">
+                Explore courses
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <div class="col-lg-8">
+                @foreach (var course in Model)
+                {
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center g-3">
+                                <div class="col-4 col-md-3">
+                                    <img src="@Url.Content(
+                                        string.IsNullOrWhiteSpace(course.ThumbnailUrl)
+                                            ? "~/images/course-placeholder.png"
+                                            : course.ThumbnailUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                                                ? course.ThumbnailUrl
+                                                : "~/" + course.ThumbnailUrl.TrimStart('/', '~'))"
+                                         alt="@course.CourseTitle"
+                                         class="img-fluid rounded"
+                                         onerror="this.style.display='none'" />
+                                </div>
+
+                                <div class="col">
+                                    <h5 class="mb-2">
+                                        @course.CourseTitle
+                                    </h5>
+
+                                    <div class="fw-bold text-primary">
+                                        @((course.DiscountPrice ?? course.Price).ToString("C0"))
+                                    </div>
+                                </div>
+
+                                <div class="col-auto">
+                                    <form asp-controller="Cart"
+                                          asp-action="Remove"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@course.CourseId" />
+
+                                        <button type="submit"
+                                                class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash"></i>
+                                            Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Order Summary</h5>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total</span>
+                            <strong>
+                                @(((decimal)ViewBag.Total).ToString("C0"))
+                            </strong>
+                        </div>
+
+                        <a asp-controller="Cart"
+                           asp-action="Checkout"
+                           class="btn btn-primary w-100">
+                            <i class="bi bi-credit-card me-2"></i>
+                            Proceed to Checkout
+                        </a>
+
+                        <p class="small text-muted mt-3 mb-0">
+                            Checkout will be available in the next step.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
